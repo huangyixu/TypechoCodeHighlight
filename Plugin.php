@@ -135,9 +135,17 @@ class TypechoCodeHighlight_Plugin implements Typecho_Plugin_Interface
                         title.innerText = lang
 
                         const copyButton = document.createElement('span')
-                        copyButton.style = 'color: #666; cursor: pointer;'
-                        copyButton.onclick = () => copy(codeTxt)
+                        copyButton.style = 'color: #666; cursor: pointer; transition: all 0.3s;'
                         copyButton.innerText = '复制'
+                        copyButton.onclick = () => {
+                            copy(codeTxt)
+                            copyButton.innerText = '已复制'
+                            copyButton.style.color = '#2080f0'
+                            setTimeout(() => {
+                                copyButton.innerText = '复制'
+                                copyButton.style.color = '#666'
+                            }, 1000)
+                        }
 
                         codeTitle.appendChild(title)
                         codeTitle.appendChild(copyButton)
