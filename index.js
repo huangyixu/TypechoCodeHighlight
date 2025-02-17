@@ -1,64 +1,86 @@
-// Class 写法
 class IframeSandbox {
 	// 创建公有属性
 	iframe = null;
 	window = null;
+
 	showln = false;
-	content = '';
-	lang = '';
+	cssName = "";
+	content = "";
+	language = "";
 
-	constructor({ showln = false, content = '', originalElement }) {
-		console.log('入口');
+	codeElement = null;
+	titleElement = null;
+	copyElement = null;
 
-		// 从原始元素中获取content 以及 lang
-		this.content = originalElement.children[0].textContent;
-		this.lang = originalElement.children[0].className.split(' ')[0].split('lang-')[1];
-
+	constructor({ showln = false, cssName, content, language, originalElement }, rootDirname) {
 		this.showln = showln;
+		this.cssName = cssName;
 		this.content = content;
+		this.language = language;
 
-		// 插入到body中
-		this.iframe = this.createIframe();
-		// document.body.appendChild(this.iframe);
+		this.iframe = document.createElement("iframe");
+		this.iframe.src = `${rootDirname}/highlight/template.html`;
+		this.iframe.title = language;
+		this.iframe.style = `
+			width: 100%;
+			height: 83.33px;
+			border: none;
+			overflow: hidden;
+			border-radius: 4px;
+		`;
 		originalElement.replaceWith(this.iframe);
 
 		this.window = this.iframe.contentWindow;
 
-		// this.iframe.src = 'about:blank';
+		this.iframe.onload = () => {
+			this.loadStatic();
+
+			this.codeElement = this.window.document.querySelector("code");
+			this.titleElement = this.window.document.querySelector(".title");
+			this.copyElement = this.window.document.querySelector(".copy");
+
+			this.render();
+		};
 	}
 
-	// 创建一个iframe的沙盒环境
-	createIframe() {
-		const iframe = document.createElement('iframe');
-		iframe.className = 'tch-precode-iframe';
-		iframe.style.width = '100%';
-		iframe.style.border = 'none';
-		iframe.style.overflow = 'hidden';
-		return iframe;
+	loadStatic() {
+		const styleLink = document.createElement("link");
+		styleLink.href = `./styles/${this.cssName}.min.css`;
+		styleLink.rel = "stylesheet";
+		styleLink.type = "text/css";
+		this.window.document.head.appendChild(styleLink);
 	}
 
-	// 创建一个precode的标题
-	createTitle() {
-		const titleElement = document.createElement('div');
-		titleElement.className = 'title';
-		titleElement.textContent = this.lang;
-		titleElement.style.display = 'flex';
-		titleElement.style.alignItems = 'center';
-		titleElement.style.justifyContent = 'space-between';
-		titleElement.style.padding = '0 10px';
-		titleElement.style.height = '30px';
-		titleElement.style.backgroundColor = '#f0f0f0';
-		titleElement.style.borderRadius = '4px 4px 0 0';
-		return titleElement;
-	}
+	render() {
+		this.window.document.documentElement.setAttribute("theme", this.cssName.includes("dark") ? "dark" : "light");
+		this.codeElement.classList.add(`language-${this.language}`);
+		this.titleElement.innerHTML = this.language;
+		this.codeElement.innerHTML = this.content;
+		this.copyElement.onclick = () => {
+			copy(this.content);
+			this.copyElement.innerHTML = "已复制";
+			this.copyElement.style.color = "#2080f0";
+			setTimeout(() => {
+				this.copyElement.innerHTML = "复制";
+				this.copyElement.style.color = "#666";
+			}, 1000);
+		};
 
-	// 创建一个precode标签
-	createBody() {
-		const preElement = document.createElement('pre');
-		const codeElement = document.createElement('code');
-		codeElement.textContent = this.content;
-		codeElement.className = `language-${this.lang}`;
-		preElement.appendChild(codeElement);
-		return preElement;
+		this.window.hljs.highlightElement(this.codeElement);
+		if (this.showln) {
+			this.window.hljs.initLineNumbersOnLoad();
+		}
+		setTimeout(() => {
+			this.iframe.style.height = `${this.window.document.body.scrollHeight}px`;
+		}, 0);
+	}
+}
+
+async function copy(copyTxt) {
+	try {
+		await navigator.clipboard.writeText(copyTxt);
+		// console.log('Page URL copied to clipboard');
+	} catch (err) {
+		console.error("Failed to copy: ", err);
 	}
 }
