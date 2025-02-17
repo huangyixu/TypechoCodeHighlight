@@ -76,9 +76,18 @@ class IframeSandbox {
 	}
 }
 
+function escape2Html(str) {
+	var arrEntities = { lt: "<", gt: ">", nbsp: " ", amp: "&", quot: '"' };
+
+	return str.replace(/&(lt|gt|nbsp|amp|quot);/gi, function (all, t) {
+		return arrEntities[t];
+	});
+}
+
 async function copy(copyTxt) {
 	try {
-		await navigator.clipboard.writeText(copyTxt);
+		// 对copyTxt进行转义, 防止特殊字符导致复制失败
+		await navigator.clipboard.writeText(escape2Html(copyTxt));
 		// console.log('Page URL copied to clipboard');
 	} catch (err) {
 		console.error("Failed to copy: ", err);
