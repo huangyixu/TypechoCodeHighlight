@@ -27,6 +27,7 @@ class IframeSandbox {
 			border: none;
 			overflow: hidden;
 			border-radius: 4px;
+			padding: 0 !important;
 		`;
 		originalElement.replaceWith(this.iframe);
 
