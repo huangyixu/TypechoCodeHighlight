@@ -8,16 +8,20 @@
 		<script src="./highlight.min.js"></script>
 		<script src="./highlightjs-line-numbers.min.js"></script>
 		<style>
+			@font-face {
+				font-family: 'FiraCode';
+				src: url('https://cdn.jsdelivr.net/npm/firacode@6.2.0/distr/woff2/FiraCode-Regular.woff2');
+			}
 			:root {
 				--border-radius: 4px;
 			}
-			html[theme="dark"],
-			html[data-theme="dark"] {
+			html[theme='dark'],
+			html[data-theme='dark'] {
 				--header-bg: #50505a;
 				--text-color: #fff;
 			}
-			html[theme="light"],
-			html[data-theme="light"] {
+			html[theme='light'],
+			html[data-theme='light'] {
 				--header-bg: #e9e9e9;
 				--text-color: #666;
 			}
@@ -75,6 +79,7 @@
 				overflow-y: auto;
 				max-height: calc(370px - 1em);
 				border-radius: var(--border-radius);
+				font-family: 'FiraCode';
 			}
 			code table {
 				border: none;
