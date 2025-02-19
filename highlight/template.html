@@ -19,11 +19,13 @@
 			html[data-theme='dark'] {
 				--header-bg: #50505a;
 				--text-color: #fff;
+				--scrollbar-thumb-bg: #666;
 			}
 			html[theme='light'],
 			html[data-theme='light'] {
 				--header-bg: #e9e9e9;
 				--text-color: #666;
+				--scrollbar-thumb-bg: #ccc;
 			}
 			::-webkit-scrollbar {
 				/*滚动条整体样式*/
@@ -32,7 +34,7 @@
 			}
 			::-webkit-scrollbar-thumb {
 				/*滚动条里面小方块*/
-				background: #666;
+				background: var(--scrollbar-thumb-bg);
 				border-radius: var(--border-radius);
 			}
 			::-webkit-scrollbar-track {
