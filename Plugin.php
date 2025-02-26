@@ -88,12 +88,15 @@ class TypechoCodeHighlight_Plugin implements Typecho_Plugin_Interface
         $style = Helper::options()->plugin('TypechoCodeHighlight')->code_style;
         // $showln = Helper::options()->plugin('TypechoCodeHighlight')->showln;
         // js中访问$showln永远是true，所以需要单独判断
+        // $showln = Helper::options()->plugin('TypechoCodeHighlight')->showln ? true : false
         if (Helper::options()->plugin('TypechoCodeHighlight')->showln) {
             $showln = true;
         } else {
             $showln = false;
         }
         echo <<<HTML
+        <script type="text/javascript" src="{$rootDirname}/highlight/highlight.min.js"></script>
+        <script type="text/javascript" src="{$rootDirname}/highlight/highlightjs-line-numbers.min.js"></script>
         <script type="text/javascript" src="{$rootDirname}/index.js"></script>
         <script type="text/javascript">
             const preList = document.getElementsByTagName('pre')
