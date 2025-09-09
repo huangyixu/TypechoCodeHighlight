@@ -171,7 +171,7 @@ class IframeSandbox {
 
 		hljs.highlightElement(this.codeElement);
 		if (this.showln) {
-			hljs.initLineNumbersOnLoad();
+			hljs.lineNumbersBlock(this.codeElement)
 		}
 		setTimeout(() => {
 			this.iframe.style.height = `${this.window.document.body.scrollHeight}px`;
