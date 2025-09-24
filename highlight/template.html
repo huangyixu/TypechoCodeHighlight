@@ -4,7 +4,8 @@
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<title>TypechoCodeHighlight</title>
-		<link rel="stylesheet" type="text/css" href="./highlightjs-line.css" />
+                <link rel="stylesheet" type="text/css" href="./highlightjs-line.css" />
+                <link rel="stylesheet" type="text/css" id="theme-style" href="" />
 		<script src="./highlight.min.js"></script>
 		<script src="./highlightjs-line-numbers.min.js"></script>
 		<style>
@@ -91,8 +92,95 @@
 			<span class="title"></span>
 			<span class="copy">复制</span>
 		</div>
-		<pre>
+                <pre>
             <code></code>
         </pre>
-	</body>
+                <script>
+                        (function () {
+                                'use strict';
+
+                                var themeLink = document.getElementById('theme-style');
+                                var codeElement = document.querySelector('code');
+                                var titleElement = document.querySelector('.title');
+                                var copyElement = document.querySelector('.copy');
+                                var resizeObserver = null;
+
+                                function isValidStyleName(name) {
+                                        return typeof name === 'string' && /^[\w-]+$/.test(name);
+                                }
+
+                                function applyTheme(name) {
+                                        var styleName = isValidStyleName(name) ? name : 'atom-one-light';
+                                        themeLink.href = './styles/' + styleName + '.min.css';
+                                        var theme = styleName.indexOf('dark') !== -1 ? 'dark' : 'light';
+                                        document.documentElement.setAttribute('theme', theme);
+                                }
+
+                                function notifyResize() {
+                                        var height = document.body.scrollHeight;
+                                        parent.postMessage({
+                                                type: 'resize',
+                                                payload: { height: height },
+                                        }, '*');
+                                }
+
+                                function highlightCode(language, content, showLineNumber) {
+                                        codeElement.className = '';
+                                        if (language) {
+                                                codeElement.classList.add('language-' + language);
+                                        }
+                                        titleElement.textContent = language || 'code';
+                                        codeElement.textContent = content || '';
+                                        if (window.hljs && typeof window.hljs.highlightElement === 'function') {
+                                                window.hljs.highlightElement(codeElement);
+                                                if (showLineNumber && window.hljs.lineNumbersBlock) {
+                                                        window.hljs.lineNumbersBlock(codeElement);
+                                                }
+                                        }
+                                        requestAnimationFrame(notifyResize);
+                                }
+
+                                function handleCopy() {
+                                        var text = codeElement.textContent || '';
+                                        if (!navigator.clipboard || typeof navigator.clipboard.writeText !== 'function') {
+                                                console.warn('Clipboard API is not available in this environment.');
+                                                return;
+                                        }
+                                        navigator.clipboard.writeText(text).then(function () {
+                                                copyElement.textContent = '已复制';
+                                                copyElement.style.color = '#2080f0';
+                                                setTimeout(function () {
+                                                        copyElement.textContent = '复制';
+                                                        copyElement.style.color = '#666';
+                                                }, 1000);
+                                        }).catch(function (error) {
+                                                console.error('Failed to copy: ', error);
+                                        });
+                                }
+
+                                copyElement.addEventListener('click', handleCopy);
+
+                                if (typeof ResizeObserver === 'function') {
+                                        resizeObserver = new ResizeObserver(function () {
+                                                notifyResize();
+                                        });
+                                        resizeObserver.observe(document.body);
+                                } else {
+                                        window.addEventListener('load', notifyResize);
+                                }
+
+                                window.addEventListener('message', function (event) {
+                                        var data = event.data || {};
+                                        if (data.type !== 'render' || !data.payload) {
+                                                return;
+                                        }
+                                        var payload = data.payload;
+                                        applyTheme(payload.cssName);
+                                        highlightCode(payload.language, payload.content, payload.showLineNumber);
+                                });
+
+                                parent.postMessage({ type: 'ready' }, '*');
+                        })();
+                </script>
+        </body>
 </html>

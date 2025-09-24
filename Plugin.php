@@ -93,34 +93,17 @@ class TypechoCodeHighlight_Plugin implements Typecho_Plugin_Interface
         } else {
             $showln = false;
         }
+        $showLineNumber = json_encode($showln);
+        $styleName = htmlspecialchars($style, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+        $root = htmlspecialchars($rootDirname, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
         echo <<<HTML
-        <script type="text/javascript" src="{$rootDirname}/index.js"></script>
+        <script type="text/javascript" src="{$root}/index.js"></script>
         <script type="text/javascript">
-            const preList = document.getElementsByTagName('pre')
-            const codeList = []
-            for (let i = 0; i < preList.length; i++) {
-                const codepre = preList[i]
-                if (codepre.children[0].tagName === 'CODE') {
-                    const language = codepre.children[0].className.split(' ')[0].split('lang-')[1]
-                    const content = codepre.children[0].innerHTML
-
-                    codeList[i] = {
-                        originalElement: codepre,
-                        language,
-                        content,
-                    }
-                }
-            }
-            // 在上个for循环中直接操作节点会实时改变preList数组长度，并且使用反循环的话页面会从低到高渲染
-            Promise.all(codeList.map((item, index) => {
-                codeList[index].iframe = new IframeSandbox({
-                    showln: "{$showln}",
-                    cssName: "{$style}",
-                    content: item.content,
-                    language: item.language,
-                    originalElement: item.originalElement,
-                }, "{$rootDirname}")
-            }))
+            window.TypechoCodeHighlight.render({
+                rootDirname: "{$root}",
+                styleName: "{$styleName}",
+                showLineNumber: {$showLineNumber},
+            });
         </script>
         HTML;
     }
